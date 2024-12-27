@@ -6,7 +6,7 @@ namespace App\Interfaces\Repositories;
 
 interface PostRepositoryInterface
 {
-    public function getByID(string $id);
+    public function getById(string $id);
 
     public function getAll();
 

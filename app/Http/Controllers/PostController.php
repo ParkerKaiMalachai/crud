@@ -5,56 +5,55 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Interfaces\Repositories\PostRepositoryInterface;
-use Exception;
-use Illuminate\Http\Request;
+use App\Http\Requests\PostRequest;
 use Illuminate\Http\Response;
 
-class PostController extends Controller
+final readonly class PostController extends Controller
 {
-    public function __construct(private PostRepositoryInterface $repository) {}
-    public function posts(): Response
-    {
-        $posts = $this->repository->getAll();
+    public function __construct(private PostRepositoryInterface $postRepository) {}
 
-        return response()->view('posts', compact('posts'));
+    public function index(): Response
+    {
+        $posts = $this->postRepository->getAll();
+
+        return response()->view('Post/index', compact('posts'));
     }
 
-    public function getItem(string $id): Response
+    public function show(string $id): Response
     {
-        $post = $this->repository->getByID($id);
+        $post = $this->postRepository->getByID($id);
 
-        return response()->view('post', compact('post'));
-    }
-    public function create(Request $request): Response
-    {
-        $post = $this->repository->create($request->all()['title']);
-
-        return response()->view('post', compact('post'));
+        return response()->view('Post/show', compact('post'));
     }
 
-    public function update(Request $request): Response
+    public function store(PostRequest $request): Response
     {
-        if (!$this->repository->update($request->all())) {
+        $validated = $request->validated();
 
-            throw new Exception('post was not updated');
-        }
+        $post = $this->postRepository->create($request->title);
 
-        $post = $this->repository->getByID($request->all()['id']);
-
-        return response()->view('post', compact('post'));
+        return response()->view('Post/show', compact('post'));
     }
 
-    public function delete(Request $request): Response
+    public function update(PostRequest $request): Response
     {
-        if (!$this->repository->delete($request->all()['id'])) {
+        $validated = $request->validated();
 
-            $result = ['delete' => false];
+        $this->postRepository->update($request->all());
 
-            return response()->view('post',  compact('result'));
-        }
+        $post = $this->postRepository->getByID($request->id);
+
+        return response()->view('Post/show', compact('post'));
+    }
+
+    public function destroy(PostRequest $request): Response
+    {
+        $validated = $request->validated();
+
+        $this->postRepository->delete($request->id);
 
         $result = ['delete' => true];
 
-        return response()->view('post', compact('result'));
+        return response()->view('Post/show', compact('result'));
     }
 }

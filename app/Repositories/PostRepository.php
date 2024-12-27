@@ -4,19 +4,21 @@ declare(strict_types=1);
 
 namespace App\Repositories;
 
+use App\Exceptions\ModelNotFoundException;
 use App\Interfaces\Repositories\PostRepositoryInterface;
 use App\Models\Post;
-use Exception;
 use Illuminate\Database\Eloquent\Collection;
 
-class PostRepository implements PostRepositoryInterface
+final class PostRepository implements PostRepositoryInterface
 {
-    public function getByID(string $id): Post
+    public function getById(string $id): Post
     {
-        $post = Post::find($id);
+        $post = Post::query()
+            ->whereKey($id)
+            ->first();
 
         if (!$post) {
-            throw new Exception('Not found');
+            throw new ModelNotFoundException('Not found');
         }
 
         return $post;
@@ -24,38 +26,26 @@ class PostRepository implements PostRepositoryInterface
 
     public function getAll(): Collection
     {
-        return Post::all();
+        return Post::query()
+            ->get();
     }
 
     public function create(string $title): Post
     {
-        $post = Post::create(['title' => $title]);
-
-        if (!$post) {
-            throw new Exception('Not created');
-        }
-
-        return $post;
+        return Post::query()
+            ->create(['title' => $title]);
     }
 
     public function update(array $values): mixed
     {
-        $post = Post::find($values['id']);
-
-        if (!$post) {
-            throw new Exception('Not found');
-        }
+        $post = Post::query()->whereKey($values['id'])->firstOrFail();
 
         return $post->update(['title' => $values['title']]);
     }
 
     public function delete(string $id): mixed
     {
-        $post = Post::find($id);
-
-        if (!$post) {
-            throw new Exception('Not found');
-        }
+        $post = Post::query()->whereKey($id)->firstOrFail();
 
         return $post->delete();
     }

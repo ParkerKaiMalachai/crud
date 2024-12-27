@@ -9,7 +9,7 @@
 
 <body>
     <h1>posts!!!</h1>
-    <form action='post' method="POST">
+    <form action='posts' method="POST">
         @csrf
         <input type="text" name="title" id="">
         <button>create</button>

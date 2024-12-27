@@ -5,13 +5,14 @@ declare(strict_types=1);
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use App\Models\Post;
 
-final class DatabaseSeeder extends Seeder
+final class PostSeeder extends Seeder
 {
     public function run(): void
     {
-        $this->call([
-            PostSeeder::class,
-        ]);
+        Post::factory()
+            ->count(10)
+            ->create();
     }
 }
